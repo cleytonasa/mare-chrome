@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Maré Agora</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="sheet">
+    <header class="sheet__header">
+      <div class="sheet__title">
+        <span class="sheet__title-main">Maré agora</span>
+        <span class="sheet__title-sub">Tábua DHN 2026</span>
+      </div>
+      <div class="portswitch" role="tablist" aria-label="Selecionar porto">
+        <button class="portswitch__btn is-active" data-port="areia_branca" role="tab" aria-selected="true">Areia Branca</button>
+        <button class="portswitch__btn" data-port="macau" role="tab" aria-selected="false">Macau</button>
+      </div>
+    </header>
+
+    <main class="sheet__body">
+      <div class="reading">
+        <div class="reading__height">
+          <span class="reading__value" id="height-value">--</span>
+          <span class="reading__unit">m</span>
+        </div>
+        <div class="reading__trend" id="trend-label">carregando…</div>
+      </div>
+
+      <svg class="curve" id="curve-svg" viewBox="0 0 320 84" preserveAspectRatio="none" aria-hidden="true"></svg>
+
+      <div class="cycle">
+        <div class="cycle__track">
+          <div class="cycle__fill" id="cycle-fill"></div>
+          <div class="cycle__marker" id="cycle-marker"></div>
+        </div>
+        <div class="cycle__labels">
+          <span id="label-prev">--:-- · --m</span>
+          <span id="label-next">--:-- · --m</span>
+        </div>
+      </div>
+
+      <dl class="stats">
+        <div class="stats__item">
+          <dt>Variação</dt>
+          <dd id="stat-rate">-- cm/h</dd>
+        </div>
+        <div class="stats__item">
+          <dt>Coeficiente</dt>
+          <dd id="stat-coef">--</dd>
+        </div>
+        <div class="stats__item">
+          <dt>Profundidade no baixio</dt>
+          <dd id="stat-depth">-- m</dd>
+        </div>
+        <div class="stats__item">
+          <dt>Próxima preamar</dt>
+          <dd id="stat-nexthigh">--</dd>
+        </div>
+      </dl>
+    </main>
+
+    <footer class="sheet__footer">
+      <span id="footer-updated">atualizado às --:--</span>
+      <span class="sheet__footer-source">github.com/cleytonasa/mares</span>
+    </footer>
+  </div>
+
+  <script src="data/tideData.js"></script>
+  <script src="data/portsData.js"></script>
+  <script src="tideCalc.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
