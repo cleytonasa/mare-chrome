@@ -1,10 +1,11 @@
 {
   "manifest_version": 3,
-  "name": "Controle de Marés — Areia Branca & Macau",
-  "version": "1.0.0",
-  "description": "Nível de maré atual em Areia Branca (TERMISA) e Macau/RN, calculado offline a partir da Tábua DHN 2026.",
+  "name": "Maré Brasil - Tábua de Marés, Vento & Carta Náutica",
+  "version": "1.0.2",
+  "description": "Nível de marés em tempo real, vento, carta náutica (OpenSeaMap), curva futura de 24h e extremos de 56 portos brasileiros (DHN / Marinha do Brasil).",
   "action": {
     "default_popup": "popup.html",
+    "default_title": "Tábua de Marés & Vento Brasil",
     "default_icon": {
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",
@@ -16,5 +17,7 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-  "permissions": ["storage"]
+  "permissions": [
+    "storage"
+  ]
 }

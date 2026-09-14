@@ -1,74 +1,257 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <title>Maré Agora</title>
-  <link rel="stylesheet" href="popup.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maré Brasil</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 410px;
+      padding: 14px;
+      background: #020617;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .header-title { font-size: 15px; font-weight: 800; color: #38bdf8; display: flex; align-items: center; gap: 8px; letter-spacing: -0.3px; }
+    .badge-v3 { font-size: 10px; background: rgba(56,189,248,0.15); color: #38bdf8; padding: 2px 7px; border-radius: 6px; border: 1px solid rgba(56,189,248,0.3); font-weight: 700; font-family: monospace; }
+    .field-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+    .field-label-row { display: flex; justify-content: space-between; align-items: center; }
+    .field-label { font-size: 10px; text-transform: uppercase; font-weight: 700; color: #94a3b8; letter-spacing: 0.5px; }
+    .geo-btn { background: none; border: none; color: #38bdf8; font-size: 10px; cursor: pointer; display: flex; align-items: center; gap: 3px; font-weight: 600; padding: 0; }
+    .geo-btn:hover { color: #7dd3fc; }
+    select, input {
+      width: 100%;
+      background: #090d16;
+      color: #ffffff;
+      border: 1px solid #1e293b;
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 12px;
+      font-weight: 500;
+      outline: none;
+    }
+    select:focus, input:focus { border-color: #0284c7; }
+    .date-row { display: flex; gap: 6px; }
+    .today-btn {
+      background: #1e293b;
+      color: #38bdf8;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 8px 14px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .today-btn:hover { background: #334155; }
+    .geo-badge { font-size: 10px; background: rgba(6, 78, 59, 0.5); border: 1px solid rgba(52, 211, 153, 0.4); color: #34d399; padding: 4px 8px; border-radius: 8px; margin-top: 2px; display: none; }
+
+    /* CARD EM TEMPO REAL */
+    .realtime-panel { background: #0b1120; border: 1px solid #1e293b; border-radius: 14px; padding: 12px; margin-top: 4px; display: flex; flex-direction: column; gap: 8px; }
+    .panel-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e293b; padding-bottom: 5px; }
+    .panel-title { font-size: 10px; font-family: monospace; font-weight: 800; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px; }
+    .live-clock { font-size: 11px; font-family: monospace; color: #94a3b8; }
+
+    .realtime-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .instant-col { display: flex; gap: 10px; background: #020617; padding: 8px; border-radius: 10px; border: 1px solid #1e293b; align-items: center; }
+    .tube-gauge { width: 14px; height: 85px; background: #000000; border-radius: 99px; border: 1px solid #334155; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; position: relative; flex-shrink: 0; }
+    .tube-gauge::after { content: ''; position: absolute; top: 50%; left: 0; right: 0; border-top: 1px dashed rgba(56,189,248,0.4); }
+    .tube-fill { width: 100%; background: linear-gradient(to top, #0284c7, #38bdf8); transition: height 0.6s ease; }
+    
+    .instant-info { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+    .instant-label { font-size: 8px; text-transform: uppercase; color: #94a3b8; font-weight: 700; letter-spacing: 0.5px; }
+    .instant-val { font-size: 22px; font-weight: 900; color: #ffffff; letter-spacing: -0.5px; line-height: 1; }
+    .instant-val span { font-size: 11px; color: #38bdf8; font-weight: 600; margin-left: 2px; }
+    .bar-lamina { font-size: 9px; color: #94a3b8; font-family: monospace; }
+    .bar-lamina strong { color: #38bdf8; }
+    .status-pill { display: flex; justify-content: space-between; align-items: center; padding: 3px 6px; border-radius: 6px; font-size: 9px; font-weight: 700; margin-top: 2px; }
+    .pill-up { background: rgba(6, 78, 59, 0.6); border: 1px solid rgba(52, 211, 153, 0.4); color: #34d399; }
+    .pill-down { background: rgba(120, 53, 15, 0.6); border: 1px solid rgba(251, 191, 36, 0.4); color: #fbbf24; }
+
+    .semidiurnal-col { display: flex; flex-direction: column; justify-content: space-between; background: #020617; padding: 8px; border-radius: 10px; border: 1px solid #1e293b; gap: 4px; }
+    .cycle-header { display: flex; justify-content: space-between; font-size: 9px; color: #94a3b8; }
+    .cycle-header span:last-child { color: #ffffff; font-weight: 700; font-family: monospace; }
+    .cycle-bar-bg { width: 100%; height: 5px; background: #0f172a; border-radius: 99px; overflow: hidden; }
+    .cycle-bar-fill { height: 100%; background: linear-gradient(to right, #38bdf8, #0284c7); transition: width 0.6s; }
+
+    .extremes-mini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; text-align: center; }
+    .mini-card { background: #090d16; padding: 4px; border-radius: 6px; border: 1px solid #1e293b; }
+    .mini-title { font-size: 7px; text-transform: uppercase; color: #94a3b8; font-weight: 700; }
+    .mini-time { font-size: 11px; font-weight: 800; color: #ffffff; font-family: monospace; margin: 1px 0; }
+    .mini-height { font-size: 9px; font-weight: 700; color: #38bdf8; font-family: monospace; }
+    .countdown-text { text-align: center; font-size: 9px; font-family: monospace; color: #cbd5e1; }
+
+    /* VENTO & CARTA NÁUTICA ROW */
+    .marine-quick-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px; }
+    .marine-card { background: #0b1120; border: 1px solid #1e293b; border-radius: 10px; padding: 6px 8px; display: flex; align-items: center; gap: 8px; }
+    .wind-arrow { width: 26px; height: 26px; border-radius: 99px; background: #020617; border: 1px solid #334155; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #38bdf8; flex-shrink: 0; }
+
+    /* GRÁFICO 24H */
+    .chart-card { background: #0b1120; border: 1px solid #1e293b; border-radius: 14px; padding: 10px; margin-top: 6px; }
+    .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .chart-title { font-size: 11px; font-weight: 700; color: #f1f5f9; display: flex; align-items: center; gap: 4px; }
+    #chartTooltipText { font-size: 10px; font-family: monospace; color: #38bdf8; font-weight: 600; }
+    .chart-svg-wrap { position: relative; width: 100%; height: 140px; background: #020617; border-radius: 10px; border: 1px solid #1e293b; overflow: hidden; cursor: crosshair; }
+    #tideSvg { width: 100%; height: 100%; }
+
+    /* EXTREMOS DO DIA (4 CARDS OFICIAIS) */
+    .extremes-section { margin-top: 6px; }
+    .extremes-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .extremes-label { font-size: 10px; text-transform: uppercase; color: #94a3b8; font-weight: 700; letter-spacing: 0.5px; }
+    .extremes-sub { font-size: 9px; color: #64748b; font-family: monospace; }
+    .extremes-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+    .ext-card { background: #090d16; border: 1px solid #1e293b; border-radius: 10px; padding: 6px 4px; text-align: center; font-family: monospace; }
+    .ext-preamar { background: rgba(8, 47, 73, 0.4); border-color: rgba(14, 116, 144, 0.5); }
+    .ext-card-title { font-size: 8px; text-transform: uppercase; color: #94a3b8; font-weight: 700; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+    .ext-card-time { font-size: 12px; font-weight: 800; color: #ffffff; margin: 2px 0; }
+    .ext-card-height { font-size: 11px; font-weight: 800; color: #38bdf8; }
+
+    /* LUA E CLIMA */
+    .footer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px; }
+    .footer-card { background: #090d16; border: 1px solid #1e293b; border-radius: 10px; padding: 6px 8px; display: flex; align-items: center; gap: 8px; font-size: 11px; }
+    .footer-icon { font-size: 18px; }
+    .footer-title { font-size: 8px; text-transform: uppercase; color: #94a3b8; font-weight: 700; display: block; }
+    .footer-val { font-weight: 700; color: #ffffff; }
+  </style>
 </head>
 <body>
-  <div class="sheet">
-    <header class="sheet__header">
-      <div class="sheet__title">
-        <span class="sheet__title-main">Maré agora</span>
-        <span class="sheet__title-sub">Tábua DHN 2026</span>
-      </div>
-      <div class="portswitch" role="tablist" aria-label="Selecionar porto">
-        <button class="portswitch__btn is-active" data-port="areia_branca" role="tab" aria-selected="true">Areia Branca</button>
-        <button class="portswitch__btn" data-port="macau" role="tab" aria-selected="false">Macau</button>
-      </div>
-    </header>
-
-    <main class="sheet__body">
-      <div class="reading">
-        <div class="reading__height">
-          <span class="reading__value" id="height-value">--</span>
-          <span class="reading__unit">m</span>
-        </div>
-        <div class="reading__trend" id="trend-label">carregando…</div>
-      </div>
-
-      <svg class="curve" id="curve-svg" viewBox="0 0 320 84" preserveAspectRatio="none" aria-hidden="true"></svg>
-
-      <div class="cycle">
-        <div class="cycle__track">
-          <div class="cycle__fill" id="cycle-fill"></div>
-          <div class="cycle__marker" id="cycle-marker"></div>
-        </div>
-        <div class="cycle__labels">
-          <span id="label-prev">--:-- · --m</span>
-          <span id="label-next">--:-- · --m</span>
-        </div>
-      </div>
-
-      <dl class="stats">
-        <div class="stats__item">
-          <dt>Variação</dt>
-          <dd id="stat-rate">-- cm/h</dd>
-        </div>
-        <div class="stats__item">
-          <dt>Coeficiente</dt>
-          <dd id="stat-coef">--</dd>
-        </div>
-        <div class="stats__item">
-          <dt>Profundidade no baixio</dt>
-          <dd id="stat-depth">-- m</dd>
-        </div>
-        <div class="stats__item">
-          <dt>Próxima preamar</dt>
-          <dd id="stat-nexthigh">--</dd>
-        </div>
-      </dl>
-    </main>
-
-    <footer class="sheet__footer">
-      <span id="footer-updated">atualizado às --:--</span>
-      <span class="sheet__footer-source">github.com/cleytonasa/mares</span>
-    </footer>
+  <div class="header">
+    <div class="header-title">
+      <span>🌊</span> MARÉ BRASIL <span class="badge-v3">V3</span>
+    </div>
+    <span style="font-size: 10px; color: #64748b; font-family: monospace;">56 Portos DHN</span>
   </div>
 
-  <script src="data/tideData.js"></script>
-  <script src="data/portsData.js"></script>
-  <script src="tideCalc.js"></script>
+  <div class="field-group">
+    <div class="field-label-row">
+      <span class="field-label">Porto / Estação</span>
+      <button id="geoBtn" class="geo-btn">📍 Auto-detectar</button>
+    </div>
+    <select id="portSelect"></select>
+    <div id="geoBadge" class="geo-badge">📍 Localização sincronizada</div>
+  </div>
+
+  <div class="field-group">
+    <span class="field-label">Data</span>
+    <div class="date-row">
+      <input id="dateInput" type="date">
+      <button id="todayBtn" class="today-btn">Hoje</button>
+    </div>
+  </div>
+
+  <div class="realtime-panel">
+    <div class="panel-header">
+      <span class="panel-title">≈ NÍVEL DA MARÉ EM TEMPO REAL</span>
+      <span id="liveClock" class="live-clock">--:--:--</span>
+    </div>
+
+    <div class="realtime-grid">
+      <div class="instant-col">
+        <div class="tube-gauge">
+          <div id="liquidTubeLevel" class="tube-fill" style="height: 65%;"></div>
+        </div>
+        <div class="instant-info">
+          <span class="instant-label">Altura Instantânea</span>
+          <div class="instant-val"><span id="instantHeightVal">--</span><span>metros</span></div>
+          <div class="bar-lamina">Lâmina na Barra: <strong id="barLaminaVal">-- m</strong></div>
+          <div id="tideRatePill" class="status-pill pill-up">
+            <span id="tideStatusText">Maré Enchendo</span>
+            <span id="tideRateVal">+0 cm/h</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="semidiurnal-col">
+        <div>
+          <div class="cycle-header">
+            <span>Ciclo Semidiurno</span>
+            <span id="cyclePercentText">--%</span>
+          </div>
+          <div class="cycle-bar-bg" style="margin-top: 3px;">
+            <div id="cycleProgressBar" class="cycle-bar-fill" style="width: 50%;"></div>
+          </div>
+        </div>
+
+        <div class="extremes-mini-grid">
+          <div class="mini-card">
+            <span id="lastExtremeTitle" class="mini-title">Última Baixa-mar</span>
+            <div id="lastExtremeTime" class="mini-time">--:--</div>
+            <span id="lastExtremeHeight" class="mini-height">-- m</span>
+          </div>
+          <div class="mini-card">
+            <span id="nextExtremeTitle" class="mini-title">Próxima Preamar</span>
+            <div id="nextExtremeTime" class="mini-time">--:--</div>
+            <span id="nextExtremeHeight" class="mini-height">-- m</span>
+          </div>
+        </div>
+
+        <div id="countdownLabel" class="countdown-text">Calculando...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="marine-quick-row">
+    <div class="marine-card">
+      <div id="extWindArrow" class="wind-arrow">➤</div>
+      <div>
+        <span style="font-size: 8px; text-transform: uppercase; color: #94a3b8; font-weight: 700; display: block;">Vento no Porto</span>
+        <div style="font-size: 12px; font-weight: 800; color: #ffffff; font-family: monospace;">
+          <span id="extWindSpeed">11</span> nós <span style="font-size: 9px; color: #94a3b8;">(<span id="extWindKmh">20</span> km/h)</span>
+        </div>
+        <span id="extWindDir" style="font-size: 8px; color: #cbd5e1; font-family: monospace;">ESE (106°)</span>
+      </div>
+    </div>
+
+    <div class="marine-card" id="openChartBtn" style="cursor: pointer;">
+      <span style="font-size: 20px;">🧭</span>
+      <div>
+        <span style="font-size: 8px; text-transform: uppercase; color: #38bdf8; font-weight: 700; display: block;">Carta Náutica</span>
+        <span style="font-size: 11px; font-weight: 800; color: #ffffff; display: block;">Barra & Balizamento</span>
+        <span id="extCoordsLabel" style="font-size: 8px; color: #94a3b8; font-family: monospace;">Ver no OpenSeaMap</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-header">
+      <div class="chart-title">
+        <svg width="14" height="14" fill="none" stroke="#38bdf8" stroke-width="2" viewBox="0 0 24 24"><path d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>
+        <span>Curva Futura 24h</span>
+      </div>
+      <span id="chartTooltipText">Passe o cursor</span>
+    </div>
+    <div id="tideGraphContainer" class="chart-svg-wrap">
+      <svg id="tideSvg" viewBox="0 0 600 200" preserveAspectRatio="none"></svg>
+    </div>
+  </div>
+
+  <div class="extremes-section">
+    <div class="extremes-header">
+      <span class="extremes-label">Extremos do Dia (DHN)</span>
+      <span class="extremes-sub">Hora Local</span>
+    </div>
+    <div id="extremesList" class="extremes-grid-4"></div>
+  </div>
+
+  <div class="footer-grid">
+    <div class="footer-card">
+      <span id="moonIcon" class="footer-icon">🌕</span>
+      <div>
+        <span class="footer-title">Fase Lunar</span>
+        <span id="moonPhaseName" class="footer-val">Sizígia</span>
+      </div>
+    </div>
+    <div class="footer-card">
+      <span class="footer-icon">🌤️</span>
+      <div>
+        <span class="footer-title">Condição do Mar</span>
+        <span class="footer-val">Vaga: 1.0m • Calmo</span>
+      </div>
+    </div>
+  </div>
+
   <script src="popup.js"></script>
 </body>
 </html>
